@@ -1,0 +1,785 @@
+<html><head><base href="/" />
+  <title>iSchool Learning Management System</title>
+  <link rel="icon" href="download.png">
+  <style>
+  :root {
+    --primary: #2563eb;
+    --secondary: #64748b;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --dark: #0f172a;
+    --light: #f1f5f9;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  body {
+    background: var(--light);
+  }
+  
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  
+  .navbar {
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 1rem 0;
+  }
+  
+  .navbar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary);
+  }
+  
+  .main-content {
+    margin-top: 2rem;
+  }
+  
+  .dashboard {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 2rem;
+  }
+  
+  .sidebar {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    height: calc(100vh - 150px);
+  }
+  
+  .menu-item {
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    color: var(--secondary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.2s;
+  }
+  
+  .menu-item:hover {
+    background: var(--light);
+    color: var(--primary);
+  }
+  
+  .menu-item.active {
+    background: var(--primary);
+    color: white;
+  }
+  
+  .content-area {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+  
+  .content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .btn {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin: 0 0.25rem;
+  }
+  
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+  
+  .btn-danger {
+    background: var(--danger);
+    color: white;
+  }
+  
+  .btn-primary:hover, .btn-danger:hover {
+    opacity: 0.9;
+  }
+  
+  .card {
+    background: var(--light);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .file-upload {
+    border: 2px dashed var(--secondary);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+  }
+  
+  .file-upload:hover {
+    border-color: var(--primary);
+  }
+  
+  #fileList {
+    margin-top: 1rem;
+  }
+  
+  .file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+  }
+  
+  .students-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+  
+  .login-form {
+    max-width: 400px;
+    margin: 100px auto;
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  
+  .form-group input, .form-group select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--secondary);
+    border-radius: 4px;
+  }
+  
+  .error-message {
+    color: var(--danger);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--secondary);
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+  
+  select.form-control {
+    background-color: white;
+    height: 38px;
+  }
+  
+  .btn {
+    margin-right: 0.5rem;
+  }
+  
+  .login-form button {
+    margin-top: 1rem;
+  }
+  </style>
+  
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+  <div id="loginView" style="display: none;">
+    <div class="container">
+      <div class="login-form">
+        <h2>Login to iSchool LMS</h2>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="loginEmail">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword">
+        </div>
+        <div class="error-message" id="loginError"></div>
+        <button class="btn btn-primary" onclick="performLogin()">Login</button>
+        <button class="btn btn-primary" onclick="showRegister()">Register</button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="mainView" style="display: none;">
+    <nav class="navbar">
+      <div class="container navbar-content">
+        <div class="logo">iSchool LMS</div>
+        <div class="user-menu">
+          <span id="userEmail"></span>
+          <button class="btn btn-primary" onclick="logout()">Logout</button>
+        </div>
+      </div>
+    </nav>
+  
+    <div class="container main-content">
+      <div class="dashboard">
+        <div class="sidebar">
+          <a href="#dashboard" class="menu-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            Dashboard
+          </a>
+          <a href="#files" class="menu-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+            Files
+          </a>
+          <div id="teacherMenu" style="display: none;">
+            <a href="#students" class="menu-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 1 0-7.75"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              Students
+            </a>
+          </div>
+          <div id="controllerMenu" style="display: none;">
+            <a href="#users" class="menu-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 1 0-7.75"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              Manage Users
+            </a>
+            <a href="#controllerFiles" class="menu-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+              Manage Files
+            </a>
+          </div>
+        </div>
+  
+        <div class="content-area">
+          <div id="dashboardView">
+            <div class="content-header">
+              <h2>Dashboard</h2>
+            </div>
+            <div class="dashboard-stats">
+              <div class="card">
+                <h3>Recent Activities</h3>
+                <div id="activities"></div>
+              </div>
+            </div>
+          </div>
+  
+          <div id="filesView" style="display: none;">
+            <div class="content-header">
+              <h2>Files</h2>
+              <button class="btn btn-primary" onclick="showUploadModal()">Upload File</button>
+            </div>
+            <div class="file-upload" id="dropZone">
+              <p>Drag and drop files here or click to upload</p>
+              <input type="file" id="fileInput" style="display: none;" multiple>
+            </div>
+            <div id="fileList"></div>
+          </div>
+  
+          <div id="studentsView" style="display: none;">
+            <div class="content-header">
+              <h2>Students</h2>
+            </div>
+            <div class="students-list" id="studentsList"></div>
+          </div>
+  
+          <div id="controllerView" style="display: none;">
+            <div class="content-header">
+              <h2>Controller Dashboard</h2>
+            </div>
+            <div class="card">
+              <h3>All Users</h3>
+              <div id="usersList"></div>
+            </div>
+            <div class="card">
+              <h3>All Files</h3>
+              <div id="controllerFileList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+  let db = {
+    users: [],
+    files: [],
+    currentUser: null,
+    activities: []
+  };
+  
+  function loadData() {
+    const savedData = localStorage.getItem('ischoolData');
+    if (savedData) {
+      db = JSON.parse(savedData);
+    }
+    
+    // Ensure controller account exists
+    const controllerExists = db.users.some(u => u.email === 'controler@gmail.com');
+    if (!controllerExists) {
+      // Add controller account if it doesn't exist
+      db.users.push({
+        id: Date.now(),
+        fullName: 'System Controller',
+        email: 'controler@gmail.com',
+        password: 'con123456',
+        role: 'admin',
+        createdAt: new Date().toISOString()
+      });
+      saveData();
+    }
+    
+    if (!db.currentUser) {
+      showLoginView();
+    } else {
+      showMainView();
+    }
+  }
+  
+  function saveData() {
+    localStorage.setItem('ischoolData', JSON.stringify(db));
+  }
+  
+  function showLoginView() {
+    document.getElementById('loginView').style.display = 'block';
+    document.getElementById('mainView').style.display = 'none';
+  }
+  
+  function showMainView() {
+    document.getElementById('loginView').style.display = 'none';
+    document.getElementById('mainView').style.display = 'block';
+    
+    // Hide all menus first
+    document.getElementById('teacherMenu').style.display = 'none';
+    document.getElementById('controllerMenu').style.display = 'none';
+    
+    // Show appropriate menu based on role
+    if (db.currentUser.role === 'admin') {
+      document.getElementById('controllerMenu').style.display = 'block';
+      document.getElementById('dashboardView').style.display = 'none';
+      document.getElementById('filesView').style.display = 'none';
+      document.getElementById('studentsView').style.display = 'none';
+      document.getElementById('controllerView').style.display = 'block';
+      updateUsersList();
+      updateControllerFileList();
+    } else if (db.currentUser.role === 'teacher') {
+      document.getElementById('teacherMenu').style.display = 'block';
+      document.getElementById('dashboardView').style.display = 'block';
+    } else {
+      document.getElementById('dashboardView').style.display = 'block';
+    }
+    
+    document.getElementById('userEmail').textContent = 
+      `${db.currentUser.email} (${db.currentUser.role})`;
+    updateFileList();
+    updateActivities();
+  }
+  
+  function performLogin() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    const user = db.users.find(u => u.email === email && u.password === password);
+    const errorElement = document.getElementById('loginError');
+    
+    if (!email || !password) {
+      errorElement.textContent = 'Please enter both email and password.';
+      return;
+    }
+    
+    if (user) {
+      db.currentUser = user;
+      logActivity(`${user.fullName} logged in`);
+      saveData();
+      showMainView();
+      
+      // Clear login form
+      document.getElementById('loginEmail').value = '';
+      document.getElementById('loginPassword').value = '';
+      errorElement.textContent = '';
+    } else {
+      errorElement.textContent = 'Invalid email or password. Please try again.';
+      document.getElementById('loginPassword').value = '';
+    }
+  }
+  
+  function showRegister() {
+    document.getElementById('loginView').innerHTML = `
+      <div class="container">
+        <div class="login-form">
+          <h2>Register for iSchool LMS</h2>
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="registerFullName">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="registerEmail">
+          </div>
+          <div class="form-group">
+            <label>User Type</label>
+            <select id="registerRole" class="form-control">
+              <option value="teacher">Teacher</option>
+              <option value="student">Student</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="registerPassword">
+          </div>
+          <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" id="registerConfirmPassword">
+          </div>
+          <div class="error-message" id="registerError"></div>
+          <button class="btn btn-primary" onclick="performRegistration()">Register</button>
+          <button class="btn btn-primary" onclick="showLoginForm()">Back to Login</button>
+        </div>
+      </div>
+    `;
+  }
+  
+  function performRegistration() {
+    const fullName = document.getElementById('registerFullName').value;
+    const email = document.getElementById('registerEmail').value;
+    const role = document.getElementById('registerRole').value;
+    const password = document.getElementById('registerPassword').value;
+    const confirmPassword = document.getElementById('registerConfirmPassword').value;
+    const errorElement = document.getElementById('registerError');
+    
+    // Validation
+    if (!fullName || !email || !password || !confirmPassword) {
+      errorElement.textContent = 'Please fill in all fields.';
+      return;
+    }
+    
+    if (password !== confirmPassword) {
+      errorElement.textContent = 'Passwords do not match!';
+      return;
+    }
+    
+    // Check if email already exists
+    if (db.users.some(u => u.email === email)) {
+      errorElement.textContent = 'This email is already registered!';
+      return;
+    }
+    
+    // Create the user object
+    const user = {
+      id: Date.now(),
+      fullName: fullName,
+      email: email,
+      password: password,
+      role: role,
+      createdAt: new Date().toISOString()
+    };
+    
+    db.users.push(user);
+    saveData();
+    alert('Registration successful! Please login.');
+    showLoginForm();
+  }
+  
+  function showLoginForm() {
+    document.getElementById('loginView').innerHTML = `
+      <div class="container">
+        <div class="login-form">
+          <h2>Login to iSchool LMS</h2>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="loginEmail">
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="loginPassword">
+          </div>
+          <div class="error-message" id="loginError"></div>
+          <button class="btn btn-primary" onclick="performLogin()">Login</button>
+          <button class="btn btn-primary" onclick="showRegister()">Register</button>
+        </div>
+      </div>
+    `;
+  }
+  
+  function logout() {
+    db.currentUser = null;
+    saveData();
+    showLoginView();
+  }
+  
+  function uploadFiles(files) {
+    files.forEach(file => {
+      const fileObj = {
+        id: Date.now(),
+        name: file.name,
+        size: file.size,
+        uploadedBy: db.currentUser.email,
+        uploadedAt: new Date().toISOString()
+      };
+      db.files.push(fileObj);
+      logActivity(`${db.currentUser.fullName} uploaded file: ${file.name}`);
+    });
+    saveData();
+    updateFileList();
+    updateActivities();
+  }
+  
+  function deleteFile(fileId) {
+    const file = db.files.find(f => f.id === fileId);
+    if (file) {
+      // Allow controller to delete any file
+      if (db.currentUser.role === 'admin' || 
+          file.uploadedBy === db.currentUser.email) {
+        logActivity(`${db.currentUser.role === 'admin' ? 'Controller' : ''} ${db.currentUser.fullName} deleted file: ${file.name}`);
+        db.files = db.files.filter(f => f.id !== fileId);
+        saveData();
+        updateFileList();
+        updateControllerFileList();
+        updateActivities();
+      } else {
+        alert('You do not have permission to delete this file.');
+      }
+    }
+  }
+  
+  function downloadFile(fileId) {
+    const file = db.files.find(f => f.id === fileId);
+    if (!file) {
+      alert('File not found!');
+      return;
+    }
+  
+    // Since we don't actually store file content in this demo,
+    // we'll create a text file with file info as a simulation
+    const fileContent = `File Name: ${file.name}
+  Uploaded By: ${file.uploadedBy}
+  Upload Date: ${new Date(file.uploadedAt).toLocaleString()}
+  File Size: ${file.size} bytes`;
+  
+    // Create a blob with the file content
+    const blob = new Blob([fileContent], { type: 'text/plain' });
+    
+    // Create a temporary URL for the blob
+    const url = window.URL.createObjectURL(blob);
+    
+    // Create a temporary link element to trigger the download
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = file.name;
+    
+    // Append link to body, click it, and remove it
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Clean up the temporary URL
+    window.URL.revokeObjectURL(url);
+  }
+  
+  function updateFileList() {
+    const fileList = document.getElementById('fileList');
+    const files = db.currentUser.role === 'admin' 
+      ? db.files // Admin sees all files
+      : db.currentUser.role === 'teacher'
+      ? db.files 
+      : db.files.filter(f => f.uploadedBy === db.currentUser.email);
+      
+    fileList.innerHTML = files.map(file => {
+      const uploader = db.users.find(u => u.email === file.uploadedBy);
+      return `
+        <div class="file-item">
+          <div>
+            <strong>${file.name}</strong>
+            <small>${new Date(file.uploadedAt).toLocaleString()}</small>
+            <div>Uploaded by: ${uploader ? uploader.fullName : file.uploadedBy} (${file.uploadedBy})</div>
+          </div>
+          <div>
+            <button class="btn btn-primary" onclick="downloadFile(${file.id})">Download</button>
+            ${(db.currentUser.role === 'admin' || 
+               (db.currentUser.role === 'student' && file.uploadedBy === db.currentUser.email)) 
+              ? `<button class="btn btn-danger" onclick="deleteFile(${file.id})">Delete</button>` 
+              : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+  
+  function deleteUser(userId) {
+    if (db.currentUser.role !== 'admin') return;
+    
+    const userToDelete = db.users.find(u => u.id === userId);
+    if (!userToDelete) return;
+    
+    // Prevent deleting controller account
+    if (userToDelete.email === 'controler@gmail.com') {
+      alert('Cannot delete controller account!');
+      return;
+    }
+    
+    if (confirm(`Are you sure you want to delete user ${userToDelete.fullName}?`)) {
+      // Remove user's files
+      db.files = db.files.filter(f => f.uploadedBy !== userToDelete.email);
+      
+      // Log the activity
+      if (db.currentUser.role === 'admin') {
+        logActivity(`Controller ${db.currentUser.fullName} deleted user: ${userToDelete.fullName}`);
+      } else {
+        logActivity(`${db.currentUser.fullName} deleted user: ${userToDelete.fullName}`);
+      }
+      
+      // Remove user
+      db.users = db.users.filter(u => u.id !== userId);
+      saveData();
+      
+      // Update displays
+      updateUsersList();
+      updateControllerFileList();
+      updateActivities();
+    }
+  }
+  
+  // Add updateUsersList function
+  function updateUsersList() {
+    const usersList = document.getElementById('usersList');
+    usersList.innerHTML = db.users.map(user => `
+      <div class="file-item">
+        <div>
+          <strong>${user.fullName}</strong> (${user.role})
+          <div>Email: ${user.email}</div>
+          <div>Password: ${user.password}</div>
+          <small>Created: ${new Date(user.createdAt).toLocaleString()}</small>
+        </div>
+        <div>
+          ${user.role !== 'admin' ? `
+            <button class="btn btn-danger" onclick="deleteUser(${user.id})">Delete User</button>
+          ` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  // Add updateControllerFileList function
+  function updateControllerFileList() {
+    const fileList = document.getElementById('controllerFileList');
+    if (!fileList) return;
+    
+    fileList.innerHTML = db.files.map(file => {
+      const uploader = db.users.find(u => u.email === file.uploadedBy);
+      return `
+        <div class="file-item">
+          <div>
+            <strong>${file.name}</strong>
+            <div>Uploaded by: ${uploader ? uploader.fullName : file.uploadedBy}</div>
+            <div>Email: ${file.uploadedBy}</div>
+            <small>Uploaded: ${new Date(file.uploadedAt).toLocaleString()}</small>
+          </div>
+          <div>
+            <button class="btn btn-primary" onclick="downloadFile(${file.id})">Download</button>
+            <button class="btn btn-danger" onclick="deleteFile(${file.id})">Delete</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+  
+  // Add logActivity function
+  function logActivity(message) {
+    const activity = {
+      id: Date.now(),
+      message: message,
+      timestamp: new Date().toISOString()
+    };
+    
+    db.activities = db.activities || []; // Ensure activities array exists
+    db.activities.unshift(activity); // Add new activity at the beginning
+    
+    // Keep only last 50 activities
+    if (db.activities.length > 50) {
+      db.activities = db.activities.slice(0, 50);
+    }
+    
+    saveData();
+    updateActivities();
+  }
+  
+  // Add updateActivities function
+  function updateActivities() {
+    const activitiesDiv = document.getElementById('activities');
+    if (!activitiesDiv) return;
+  
+    activitiesDiv.innerHTML = db.activities
+      .map(activity => `
+        <div class="file-item">
+          <div>
+            <small>${new Date(activity.timestamp).toLocaleString()}</small>
+            <div>${activity.message}</div>
+          </div>
+        </div>
+      `)
+      .join('');
+  }
+  
+  // Modify showView function to include controller views
+  function showView(view) {
+    document.getElementById('dashboardView').style.display = 
+      view === 'dashboard' ? 'block' : 'none';
+    document.getElementById('filesView').style.display = 
+      view === 'files' ? 'block' : 'none';
+    document.getElementById('studentsView').style.display = 
+      view === 'students' ? 'block' : 'none';
+    document.getElementById('controllerView').style.display = 
+      (view === 'users' || view === 'controllerFiles') ? 'block' : 'none';
+  }
+  
+  document.querySelectorAll('.menu-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      const view = e.currentTarget.getAttribute('href').slice(1);
+      showView(view);
+      
+      document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+    });
+  });
+  
+  document.getElementById('fileInput').addEventListener('change', (e) => {
+    const files = Array.from(e.target.files);
+    uploadFiles(files);
+  });
+  
+  function showUploadModal() {
+    document.getElementById('fileInput').click();
+  }
+  
+  // Initialize the application
+  loadData();
+  </script>
+  </body>
+  </html>
